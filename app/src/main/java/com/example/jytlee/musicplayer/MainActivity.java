@@ -162,6 +162,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onDestroy() {
         stopService(playIntent);
+        unbindService(musicConnection);
         musicSrv=null;
         super.onDestroy();
     }
