@@ -54,42 +54,52 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
+        if(musicSrv!=null && musicBound && musicSrv.isPng()) {
+            return musicSrv.getPosn();
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
     public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public void seekTo(int i) {
-
-    }
-
-    @Override
-    public void start() {
-
+        return true;
     }
 
     @Override
     public void pause() {
+        musicSrv.pausePlayer();
+    }
 
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public void start() {
+        musicSrv.go();
     }
 
     @Override
     public int getDuration() {
-        return 0;
+        if(musicSrv!=null && musicBound && musicSrv.isPng()) {
+            return musicSrv.getDur();
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
     public boolean canSeekBackward() {
-        return false;
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
     }
 
     @Override
@@ -99,7 +109,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public boolean isPlaying() {
-        return false;
+        return musicSrv!=null && musicBound && musicSrv.isPng();
     }
 
     @Override
@@ -211,4 +221,18 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         controller.setAnchorView(findViewById(R.id.song_list));
         controller.setEnabled(true);
     }
+
+    //play next
+    private void playNext(){
+        musicSrv.playNext();
+        controller.show(0);
+    }
+
+    //play previous
+    private void playPrev(){
+        musicSrv.playPrev();
+        controller.show(0);
+    }
+
+
 }
