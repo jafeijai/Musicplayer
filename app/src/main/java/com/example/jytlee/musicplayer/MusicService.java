@@ -14,6 +14,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -29,6 +30,8 @@ public class MusicService extends Service implements
     private final IBinder musicBind = new MusicBinder();
     private String songTitle="";
     private static final int NOTIFY_ID=1;
+    private boolean shuffle=false;
+    private Random rand;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -90,6 +93,9 @@ public class MusicService extends Service implements
 
         // initialize music player
         initMusicPlayer();
+
+        // initialize rand
+        rand=new Random();
     }
 
     public void initMusicPlayer(){
@@ -110,6 +116,10 @@ public class MusicService extends Service implements
         MusicService getService() {
             return MusicService.this;
         }
+    }
+
+    public void setShuffle(){
+        shuffle = !shuffle;
     }
 
     public void playSong(){
@@ -175,9 +185,16 @@ public class MusicService extends Service implements
 
     //skip to next
     public void playNext(){
-        songPosn++;
-        if(songPosn >= songs.size()) {
-            songPosn=0;
+        if(shuffle){
+            int newSong = songPosn;
+            while(newSong==songPosn){
+                newSong=rand.nextInt(songs.size());
+            }
+            songPosn=newSong;
+        }
+        else{
+            songPosn++;
+            if(songPosn>=songs.size()) songPosn=0;
         }
         playSong();
     }

@@ -190,7 +190,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //menu item selected
         switch (item.getItemId()) {
             case R.id.action_shuffle:
-                //shuffle
+                musicSrv.setShuffle();
                 break;
             case R.id.action_end:
                 stopService(playIntent);
