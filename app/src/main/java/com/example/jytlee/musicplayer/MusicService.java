@@ -1,18 +1,17 @@
 package com.example.jytlee.musicplayer;
 
 import android.app.Service;
-import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.IBinder;
-
-import java.util.ArrayList;
 import android.content.ContentUris;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -46,7 +45,8 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-
+        //start playback
+        mp.start();
     }
 
     @Override
@@ -84,6 +84,33 @@ public class MusicService extends Service implements
         MusicService getService() {
             return MusicService.this;
         }
+    }
+
+    public void playSong(){
+        //reset player
+        player.reset();
+
+        //get song
+        Song playSong = songs.get(songPosn);
+        //get id
+        long currSong = playSong.getId();
+        //set uri
+        Uri trackUri = ContentUris.withAppendedId(
+                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                currSong);
+
+        try{
+            player.setDataSource(getApplicationContext(), trackUri);
+        }
+        catch(Exception e){
+            Log.e("MUSIC SERVICE", "Error setting data source", e);
+        }
+
+        player.prepareAsync();
+    }
+
+    public void setSong(int songIndex){
+        songPosn=songIndex;
     }
 
 }
