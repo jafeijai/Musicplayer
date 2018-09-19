@@ -27,7 +27,6 @@ import java.util.Comparator;
 
 public class MainActivity extends Activity implements MediaPlayerControl {
     private ArrayList<Song> songList;
-    private ListView songView;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound = false;
@@ -46,7 +45,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             }
         }
 
-        songView = findViewById(R.id.song_list);
+        ListView songView = findViewById(R.id.song_list);
         songList = new ArrayList<>();
 
         getSongList();
