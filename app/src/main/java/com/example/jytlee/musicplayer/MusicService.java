@@ -55,6 +55,7 @@ public class MusicService extends Service implements
 
     @Override
     public void onDestroy() {
+        audioManager.abandonAudioFocus(this);
         stopForeground(true);
         super.onDestroy();
         if (player != null) {
@@ -109,6 +110,7 @@ public class MusicService extends Service implements
 
         // initialize audio focus listener
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     @Override
