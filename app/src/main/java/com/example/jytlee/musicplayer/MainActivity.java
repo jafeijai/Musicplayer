@@ -29,6 +29,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private Intent playIntent;
     private boolean musicBound = false;
     private MusicController controller;
+    private boolean paused=false;
+    private boolean playbackPaused=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,27 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        paused=true;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(paused){
+            setController();
+            paused=false;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
+    }
+
+    @Override
     public int getCurrentPosition() {
         if(musicSrv!=null && musicBound && musicSrv.isPng()) {
             return musicSrv.getPosn();
@@ -69,6 +92,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public void pause() {
+        playbackPaused=true;
         musicSrv.pausePlayer();
     }
 
@@ -183,6 +207,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        controller.show(0);
     }
 
     @Override
@@ -225,12 +254,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //play next
     private void playNext(){
         musicSrv.playNext();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
         controller.show(0);
     }
 
-    //play previous
+    // play prev
     private void playPrev(){
         musicSrv.playPrev();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
         controller.show(0);
     }
 

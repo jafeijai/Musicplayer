@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -18,7 +19,7 @@ import java.util.Random;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
     //media player
     private MediaPlayer player;
@@ -32,6 +33,7 @@ public class MusicService extends Service implements
     private static final int NOTIFY_ID=1;
     private boolean shuffle=false;
     private Random rand;
+    private AudioManager audioManager;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -47,12 +49,17 @@ public class MusicService extends Service implements
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        mp.reset();
         return false;
     }
 
     @Override
     public void onDestroy() {
         stopForeground(true);
+        super.onDestroy();
+        if (player != null) {
+            player.release();
+        }
     }
 
     @Override
@@ -80,7 +87,10 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        if(player.getCurrentPosition() > 0){
+            mp.reset();
+            playNext();
+        }
     }
 
     public void onCreate(){
@@ -96,6 +106,27 @@ public class MusicService extends Service implements
 
         // initialize rand
         rand=new Random();
+
+        // initialize audio focus listener
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                go();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                pausePlayer();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                pausePlayer();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                pausePlayer();
+                break;
+        }
     }
 
     public void initMusicPlayer(){
