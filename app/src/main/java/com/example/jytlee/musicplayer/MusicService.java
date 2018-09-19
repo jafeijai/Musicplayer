@@ -1,5 +1,7 @@
 package com.example.jytlee.musicplayer;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -25,6 +27,8 @@ public class MusicService extends Service implements
     private int songPosn;
     // binder
     private final IBinder musicBind = new MusicBinder();
+    private String songTitle="";
+    private static final int NOTIFY_ID=1;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,9 +48,31 @@ public class MusicService extends Service implements
     }
 
     @Override
+    public void onDestroy() {
+        stopForeground(true);
+    }
+
+    @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
+
+        Intent notIntent = new Intent(this, MainActivity.class);
+        notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendInt = PendingIntent.getActivity(this, 0,
+                notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder builder = new Notification.Builder(this);
+
+        builder.setContentIntent(pendInt)
+                .setSmallIcon(R.drawable.play)
+                .setTicker(songTitle)
+                .setOngoing(true)
+                .setContentTitle("Playing")
+                .setContentText(songTitle);
+        Notification not = builder.build();
+
+        startForeground(NOTIFY_ID, not);
     }
 
     @Override
@@ -92,6 +118,7 @@ public class MusicService extends Service implements
 
         //get song
         Song playSong = songs.get(songPosn);
+        songTitle=playSong.getTitle();
         //get id
         long currSong = playSong.getId();
         //set uri
